@@ -10,42 +10,52 @@ import UIKit
 class MoviesListViewController: UIViewController {
     
     // MARK: - Outlets
-    
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var searchBar: UISearchBar!
     
+    var page: Int = 2
     var popularMovies: [Movie] = []
     var popularMoviesFiltered: [Movie] = []
     var nowPlayingMovies: [Movie] = []
     var nowPlayingMoviesFiltered: [Movie] = []
 
     // MARK: - Lifecycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-        navigationController?.navigationBar.prefersLargeTitles = true
-        searchBar.delegate = self
-        tableView.separatorStyle = .none
-        tableView.delegate = self
-        tableView.dataSource = self
-        
-        self.fetchMovies(type: "now_playing", page: 1)
+        self.configure()
         self.fetchMovies(type: "popular", page: 1)
+        self.fetchMovies(type: "now_playing", page: 1)
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let vc = segue.destination as? MovieDetailsViewController, segue.identifier == "showMovieDetails", let sender = sender as? Movie else {
+            return
+        }
+        vc.movie = sender
     }
     
     // MARK: - Actions
-    
-    private func fetchMovies(type: String, page: Int) {
-        HTTPService.shared.fetchMoviesByType(type: type, page: 1) { [weak self] result in
+    private func fetchMovies(type: String, page: Int, clean: Bool = false) {
+        HTTPService.shared.fetchMoviesByType(type: type, page: page) { [weak self] result in
             switch result {
             case .success(let movies):
                 guard let self = self else { return }
+                if clean {
+                    self.page = 2
+                    if type == "popular" {
+                        self.popularMovies = []
+                        self.popularMoviesFiltered = []
+                    } else {
+                        self.nowPlayingMovies = []
+                        self.nowPlayingMoviesFiltered = []
+                    }
+                }
                 if type == "popular" {
-                    self.popularMovies = movies
-                    self.popularMoviesFiltered = movies
+                    self.popularMovies += movies
+                    self.popularMoviesFiltered += movies
                 } else {
-                    self.nowPlayingMovies = movies
-                    self.nowPlayingMoviesFiltered = movies
+                    self.nowPlayingMovies += movies
+                    self.nowPlayingMoviesFiltered += movies
                 }
                 DispatchQueue.main.async {
                     self.tableView.reloadData()
@@ -56,12 +66,29 @@ class MoviesListViewController: UIViewController {
         }
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let vc = segue.destination as? MovieDetailsViewController, segue.identifier == "showMovieDetails", let sender = sender as? Movie else {
-            return
-        }
-        vc.movie = sender
+    private func configure() {
+        navigationController?.navigationBar.prefersLargeTitles = true
+        let refreshable = UIRefreshControl()
+        
+        tableView.refreshControl = refreshable
+        tableView.refreshControl?.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+        tableView.separatorStyle = .none
+        
+        tableView.delegate = self
+        tableView.dataSource = self
+        searchBar.delegate = self
     }
+    
+    @objc func handleRefresh() {
+        self.fetchMovies(type: "now_playing", page: 1, clean: true)
+        self.fetchMovies(type: "popular", page: 1, clean: true)
+        self.tableView.refreshControl?.endRefreshing()
+    }
+    
+    func scrollToFirstRow() {
+        let indexPath = IndexPath(row: 0, section: 0)
+        self.tableView.scrollToRow(at: indexPath, at: .top, animated: true)
+      }
 
 }
 
@@ -97,6 +124,17 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
         let movie = indexPath.section == 0 ? popularMoviesFiltered[indexPath.row] : nowPlayingMoviesFiltered[indexPath.row]
         performSegue(withIdentifier: "showMovieDetails", sender: movie)
     }
+    
+    func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
+        guard scrollView == tableView,
+              (scrollView.contentOffset.y + scrollView.frame.size.height) >= scrollView.contentSize.height else { return }
+        
+        self.tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .top, animated: true)
+        self.fetchMovies(type: "popular", page: page)
+        self.fetchMovies(type: "now_playing", page: page)
+        page += 1
+    }
+    
 }
 
 extension MoviesListViewController: UISearchBarDelegate {

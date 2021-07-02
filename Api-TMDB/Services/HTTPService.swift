@@ -16,7 +16,34 @@ final class HTTPService {
     
     public static var shared: HTTPService = HTTPService()
     
-    private init(){}
+    private var genres: [Genre] = []
+    
+    private init(){
+        self.fetchGenresInternal()
+    }
+    
+    private func fetchGenresInternal() {
+        guard let url = URL(string: "https://api.themoviedb.org/3/genre/movie/list?api_key=\(Constants.API_KEY_V3)") else {
+            return
+        }
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            guard error == nil,
+                  let data = data,
+                  let json = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed),
+                  let dictionary = json as? [String: Any],
+                  let genres = dictionary["genres"] as? [[String: Any]]
+            else {
+                return
+            }
+            var ret: [Genre] = []
+            for genre in genres {
+                guard let id = genre["id"] as? Int, let name = genre["name"] as? String else { continue }
+                ret.append(Genre(id: id, name: name))
+            }
+            self.genres = ret
+        }
+        .resume()
+    }
     
     public func fetchMoviesByType(type: String, page: Int, completion: @escaping (Result<[Movie], HTTPError>) -> Void) {
         guard let url = URL(string: "https://api.themoviedb.org/3/movie/\(type)?api_key=\(Constants.API_KEY_V3)&language=en-US&page=\(page)") else {
@@ -48,31 +75,14 @@ final class HTTPService {
         .resume()
     }
     
-    public func fetchGenres(of movie: Movie, completion: @escaping (Result<String, HTTPError>) -> Void) {
-        guard let url = URL(string: "https://api.themoviedb.org/3/genre/movie/list?api_key=\(Constants.API_KEY_V3)") else {
-            completion(.failure(.urlNotFound))
-            return
-        }
-        URLSession.shared.dataTask(with: url) { data, response, error in
-            guard error == nil,
-                  let data = data,
-                  let json = try? JSONSerialization.jsonObject(with: data, options: .fragmentsAllowed),
-                  let dictionary = json as? [String: Any],
-                  let genres = dictionary["genres"] as? [[String: Any]]
-            else {
-                completion(.failure(.badRequest))
-                return
+    public func fetchGenres(of movie: Movie) -> String {
+        var ret = ""
+        for genre in self.genres {
+            if movie.genres.contains(genre.id) {
+                ret += genre.name + ", "
             }
-            var ret = ""
-            for genre in genres {
-                guard let id = genre["id"] as? Int, let name = genre["name"] as? String else { continue }
-                if movie.genres.contains(id) {
-                    ret += name + ", "
-                }
-            }
-            completion(.success(String(ret.dropLast(2))))
         }
-        .resume()
+        return String(ret.dropLast(2))
     }
     
     public func fetchMoviePoster(with url: URL?) -> UIImage? {

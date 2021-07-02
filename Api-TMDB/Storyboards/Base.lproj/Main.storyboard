@@ -16,12 +16,8 @@
                         <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <searchBar contentMode="redraw" placeholder="Search" translatesAutoresizingMaskIntoConstraints="NO" id="zb4-P6-leW">
-                                <rect key="frame" x="0.0" y="88" width="414" height="51"/>
-                                <textInputTraits key="textInputTraits"/>
-                            </searchBar>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ZWZ-IM-0Xp">
-                                <rect key="frame" x="0.0" y="139" width="414" height="723"/>
+                                <rect key="frame" x="0.0" y="88" width="414" height="774"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="movieCell" rowHeight="138" id="46c-ui-CsB" customClass="MovieListTableViewCell" customModule="Api_TMDB" customModuleProvider="target">
@@ -87,18 +83,14 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="ZWZ-IM-0Xp" firstAttribute="top" secondItem="zb4-P6-leW" secondAttribute="bottom" id="LZX-FL-kLd"/>
+                            <constraint firstItem="ZWZ-IM-0Xp" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="JH1-o9-Tff"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="ZWZ-IM-0Xp" secondAttribute="bottom" id="NW2-yH-zj4"/>
-                            <constraint firstItem="zb4-P6-leW" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" id="Oaf-g2-tcC"/>
-                            <constraint firstItem="zb4-P6-leW" firstAttribute="trailing" secondItem="6Tk-OE-BBY" secondAttribute="trailing" id="PcN-ap-E0z"/>
                             <constraint firstItem="ZWZ-IM-0Xp" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="UEj-qQ-N3o"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="ZWZ-IM-0Xp" secondAttribute="trailing" id="bxY-y7-VP8"/>
-                            <constraint firstItem="zb4-P6-leW" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="wUh-Xx-lP2"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Movies" largeTitleDisplayMode="always" id="ZVT-0t-A22"/>
                     <connections>
-                        <outlet property="searchBar" destination="zb4-P6-leW" id="kWz-Fo-mpv"/>
                         <outlet property="tableView" destination="ZWZ-IM-0Xp" id="ACT-in-CSX"/>
                         <segue destination="Pau-Yk-7C9" kind="show" identifier="showMovieDetails" id="nPh-pg-vd3"/>
                     </connections>

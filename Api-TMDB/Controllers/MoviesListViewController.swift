@@ -11,8 +11,8 @@ class MoviesListViewController: UIViewController {
     
     // MARK: - Outlets
     @IBOutlet weak var tableView: UITableView!
-    @IBOutlet weak var searchBar: UISearchBar!
     
+    var searchController = UISearchController(searchResultsController: nil)
     var page: Int = 2
     var popularMovies: [Movie] = []
     var popularMoviesFiltered: [Movie] = []
@@ -76,7 +76,12 @@ class MoviesListViewController: UIViewController {
         
         tableView.delegate = self
         tableView.dataSource = self
-        searchBar.delegate = self
+        navigationItem.searchController = searchController
+        navigationItem.hidesSearchBarWhenScrolling = false
+        searchController.searchResultsUpdater = self
+        searchController.obscuresBackgroundDuringPresentation = false
+        searchController.searchBar.placeholder = "Search"
+        
     }
     
     @objc func handleRefresh() {
@@ -137,8 +142,9 @@ extension MoviesListViewController: UITableViewDataSource, UITableViewDelegate {
     
 }
 
-extension MoviesListViewController: UISearchBarDelegate {
-    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+extension MoviesListViewController: UISearchResultsUpdating {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let searchText = searchController.searchBar.text else { return }
         self.nowPlayingMoviesFiltered = self.nowPlayingMovies
         self.popularMoviesFiltered = self.popularMovies
         if !searchText.isEmpty {

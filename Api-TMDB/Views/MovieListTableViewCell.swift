@@ -16,7 +16,6 @@ class MovieListTableViewCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
     }
 
     override func setSelected(_ selected: Bool, animated: Bool) {
@@ -28,7 +27,8 @@ class MovieListTableViewCell: UITableViewCell {
         movieImageView.layer.cornerRadius = 8
         titleLabel.text = title
         descriptionLabel.text = description
-        ratingLabel.text = "* \(rating)"
+        let mutableString = NSMutableAttributedString(attachment: NSTextAttachment(image: UIImage(systemName: "star")!))
+        mutableString.append(NSAttributedString(string: " \(rating)"))
+        ratingLabel.attributedText = mutableString
     }
-
 }

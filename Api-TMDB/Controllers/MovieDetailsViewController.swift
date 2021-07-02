@@ -30,7 +30,9 @@ class MovieDetailsViewController: UIViewController {
         posterImageView.image = movie.image
         posterImageView.layer.cornerRadius = 8
         titleLabel.text = movie.title
-        ratingLabel.text = "* \(movie.rating)"
+        let mutableString = NSMutableAttributedString(attachment: NSTextAttachment(image: UIImage(systemName: "star")!))
+        mutableString.append(NSAttributedString(string: " \(movie.rating)"))
+        ratingLabel.attributedText = mutableString
         descriptionLabel.text = movie.description
     }
 

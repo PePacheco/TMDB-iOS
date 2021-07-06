@@ -36,6 +36,7 @@ class MoviesListViewController: UIViewController {
     
     // MARK: - Actions
     private func fetchMovies(type: String, page: Int, clean: Bool = false) {
+        self.pushLoadingScreen()
         HTTPService.shared.fetchMoviesByType(type: type, page: page) { [weak self] result in
             switch result {
             case .success(let movies):
@@ -58,12 +59,25 @@ class MoviesListViewController: UIViewController {
                     self.nowPlayingMoviesFiltered += movies
                 }
                 DispatchQueue.main.async {
+                    self.dismiss(animated: false, completion: nil)
                     self.tableView.reloadData()
                 }
             case .failure(let error):
                 print(error)
             }
         }
+    }
+    
+    private func pushLoadingScreen() {
+        let alert = UIAlertController(title: nil, message: "Please wait...", preferredStyle: .alert)
+
+        let loadingIndicator = UIActivityIndicatorView(frame: CGRect(x: 10, y: 5, width: 50, height: 50))
+        loadingIndicator.hidesWhenStopped = true
+        loadingIndicator.style = UIActivityIndicatorView.Style.medium
+        loadingIndicator.startAnimating();
+
+        alert.view.addSubview(loadingIndicator)
+        present(alert, animated: true, completion: nil)
     }
     
     private func configure() {

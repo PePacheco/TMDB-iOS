@@ -17,13 +17,15 @@ class CacheService {
         self.cache = NSCache<NSString, NSArray>()
     }
     
-    func store(_ movies: [Movie]) {
-        cache.setObject(movies as NSArray, forKey: "movies")
+    func store(_ movies: [Movie], type: String) {
+        let key = "movies\(type)" as NSString
+        cache.setObject(movies as NSArray, forKey: key)
     }
     
-    func retrieve() -> [Movie]? {
-        if let data = cache.object(forKey: "movies") as? [Movie] {
-            return data
+    func retrieve(type: String) -> [Movie]? {
+        let key = "movies\(type)" as NSString
+        if let data = cache.object(forKey: key) {
+            return data as? [Movie]
         }
         return nil
     }

@@ -47,10 +47,6 @@ final class HTTPService {
     }
     
     public func fetchMoviesByType(type: String, page: Int, completion: @escaping (Result<[Movie], HTTPError>) -> Void) {
-        if let cache = CacheService.shared.retrieve() {
-            completion(.success(cache))
-            return
-        }
         guard let url = URL(string: "https://api.themoviedb.org/3/movie/\(type)?api_key=\(Constants.API_KEY_V3)&language=en-US&page=\(page)") else {
             completion(.failure(.urlNotFound))
             return
@@ -75,7 +71,7 @@ final class HTTPService {
                 guard let image = HTTPService.shared.fetchMoviePoster(with: URL(string: "https://image.tmdb.org/t/p/w500\(path)")) else { continue }
                 results.append(Movie(id: id, title: title, description: description, rating: rating, image: image, genres: genres))
             }
-            CacheService.shared.store(results)
+            CacheService.shared.store(results, type: type)
             completion(.success(results))
         }
         .resume()

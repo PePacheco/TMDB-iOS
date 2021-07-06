@@ -59,8 +59,8 @@ class MoviesListViewController: UIViewController {
                     self.nowPlayingMoviesFiltered += movies
                 }
                 DispatchQueue.main.async {
-                    self.dismiss(animated: false, completion: nil)
                     self.tableView.reloadData()
+                    self.dismiss(animated: false, completion: nil)
                 }
             case .failure(let error):
                 print(error)

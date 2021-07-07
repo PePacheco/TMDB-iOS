@@ -7,8 +7,7 @@
 
 import UIKit
 
-class CacheService {
-    
+struct CacheService {
     static let shared: CacheService = CacheService()
     
     let cache: NSCache<NSString, UIImage>

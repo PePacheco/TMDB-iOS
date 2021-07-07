@@ -38,9 +38,9 @@ class MoviesListViewController: UIViewController {
     private func fetchMovies(type: String, page: Int, clean: Bool = false) {
         self.pushLoadingScreen()
         HTTPService.shared.fetchMoviesByType(type: type, page: page) { [weak self] result in
+            guard let self = self else { return }
             switch result {
             case .success(let movies):
-                guard let self = self else { return }
                 if clean {
                     self.page = 2
                     if type == "popular" {
@@ -58,12 +58,12 @@ class MoviesListViewController: UIViewController {
                     self.nowPlayingMovies += movies
                     self.nowPlayingMoviesFiltered += movies
                 }
-                DispatchQueue.main.async {
-                    self.tableView.reloadData()
-                    self.dismiss(animated: false, completion: nil)
-                }
             case .failure(let error):
                 print(error)
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                self.tableView.reloadData()
+                self.dismiss(animated: true, completion: nil)
             }
         }
     }

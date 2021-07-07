@@ -5,27 +5,25 @@
 //  Created by Pedro Gomes Rubbo Pacheco on 06/07/21.
 //
 
-import Foundation
+import UIKit
 
 class CacheService {
     
     static let shared: CacheService = CacheService()
     
-    let cache: NSCache<NSString, NSArray>
+    let cache: NSCache<NSString, UIImage>
     
     private init() {
-        self.cache = NSCache<NSString, NSArray>()
+        self.cache = NSCache<NSString, UIImage>()
     }
     
-    func store(_ movies: [Movie], type: String) {
-        let key = "movies\(type)" as NSString
-        cache.setObject(movies as NSArray, forKey: key)
+    func store(key: String, value: UIImage) {
+        cache.setObject(value, forKey: key as NSString)
     }
     
-    func retrieve(type: String) -> [Movie]? {
-        let key = "movies\(type)" as NSString
-        if let data = cache.object(forKey: key) {
-            return data as? [Movie]
+    func retrieve(key: String) -> UIImage? {
+        if let data = cache.object(forKey: key as NSString) {
+            return data
         }
         return nil
     }

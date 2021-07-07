@@ -71,7 +71,6 @@ final class HTTPService {
                 guard let image = HTTPService.shared.fetchMoviePoster(with: URL(string: "https://image.tmdb.org/t/p/w500\(path)")) else { continue }
                 results.append(Movie(id: id, title: title, description: description, rating: rating, image: image, genres: genres))
             }
-            CacheService.shared.store(results, type: type)
             completion(.success(results))
         }
         .resume()

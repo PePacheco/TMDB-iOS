@@ -68,9 +68,15 @@ final class HTTPService {
                 guard let id = movie["id"] as? Int, let title = movie["title"] as? String, let description = movie["overview"] as? String, let rating = movie["vote_average"] as? Int, let path = movie["backdrop_path"] as? String, let genres = movie["genre_ids"] as? [Int] else {
                     continue
                 }
-                guard let image = HTTPService.shared.fetchMoviePoster(with: URL(string: "https://image.tmdb.org/t/p/w500\(path)")) else { continue }
-                results.append(Movie(id: id, title: title, description: description, rating: rating, image: image, genres: genres))
+                if let cachedImage = CacheService.shared.retrieve(key: path) {
+                    results.append(Movie(id: id, title: title, description: description, rating: rating, image: cachedImage, genres: genres))
+                } else {
+                    guard let image = HTTPService.shared.fetchMoviePoster(with: URL(string: "https://image.tmdb.org/t/p/w500\(path)")) else { continue }
+                    CacheService.shared.store(key: path, value: image)
+                    results.append(Movie(id: id, title: title, description: description, rating: rating, image: image, genres: genres))
+                }
             }
+            
             completion(.success(results))
         }
         .resume()
